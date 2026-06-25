@@ -7,6 +7,7 @@ import {
   handleGenerateCleanPreviewRequest
 } from "../src/server/analyzeImageRoute.js";
 import { loadEnvFile } from "../src/server/env.js";
+import { handleSiteConfigRequest } from "../src/server/siteConfig.js";
 
 const root = resolve(".");
 const port = Number(process.env.PORT || 5173);
@@ -34,6 +35,11 @@ const server = createServer(async (request, response) => {
 
     if (url.pathname === "/api/generate-clean-preview") {
       await handleGenerateCleanPreviewRequest(request, response);
+      return;
+    }
+
+    if (url.pathname === "/api/site-config") {
+      handleSiteConfigRequest(request, response);
       return;
     }
 

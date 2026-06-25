@@ -8,6 +8,7 @@ import {
   plannerResultToSpatialPlan,
   validateOrganizerPlan
 } from "./openaiOrganizer.js";
+import { assertRateLimit, getClientIdentifierFromRequest } from "./rateLimit.js";
 
 export async function handleAnalyzeImageRequest(request, response) {
   try {
@@ -19,6 +20,10 @@ export async function handleAnalyzeImageRequest(request, response) {
       return;
     }
 
+    assertRateLimit({
+      action: "analyze",
+      clientId: getClientIdentifierFromRequest(request)
+    });
     const payload = await analyzeImagePayload(await readJsonBody(request));
     sendJson(response, 200, payload);
   } catch (error) {
@@ -41,6 +46,10 @@ export async function handleGenerateCleanPreviewRequest(request, response) {
       return;
     }
 
+    assertRateLimit({
+      action: "preview",
+      clientId: getClientIdentifierFromRequest(request)
+    });
     const payload = await generateCleanPreviewPayload(await readJsonBody(request));
     sendJson(response, 200, payload);
   } catch (error) {
@@ -201,6 +210,10 @@ export function statusCodeForError(error) {
     error.code === "INVALID_PLANNER_RESULT"
   ) {
     return 400;
+  }
+
+  if (error.code === "RATE_LIMITED") {
+    return 429;
   }
 
   return 500;

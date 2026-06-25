@@ -76,6 +76,30 @@ Checks:
 - Planner, Editor, Validator, Child Content Policy, and UI Limitations sections are parsed
 - runtime prompts include city, filename, and planner JSON where needed
 
+`tests/rateLimit.test.js`
+
+Checks:
+
+- request limits block excess calls in a window
+- Fast Mode defaults to 3 requests per window
+- Preview Mode defaults to 1 request per window
+- client IP is extracted from forwarded headers
+
+`tests/siteConfig.test.js`
+
+Checks:
+
+- public config returns a safe Tally URL and GA4 ID
+- unsafe feedback URLs and invalid analytics IDs are dropped
+
+`tests/netlifyHttp.test.js`
+
+Checks:
+
+- Netlify JSON body parsing
+- Netlify request-size limits
+- retry-after headers for rate-limited responses
+
 `tests/aiAnalysisClient.test.js`
 
 Checks:
@@ -150,6 +174,8 @@ Use this checklist before release:
 12. Confirm points reach 100.
 13. Confirm progress reaches 100%.
 14. Confirm completed-room celebration appears.
+15. Confirm before / after example photos load.
+16. If `TIDYSNAP_FEEDBACK_URL` is set, confirm the feedback button opens the Tally form.
 
 ## Edge Cases To Test Later
 

@@ -16,3 +16,8 @@
   from = "/api/generate-clean-preview"
   to = "/.netlify/functions/generate-clean-preview"
   status = 200
+
+[[redirects]]
+  from = "/api/site-config"
+  to = "/.netlify/functions/site-config"
+  status = 200

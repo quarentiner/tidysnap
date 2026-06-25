@@ -5,9 +5,12 @@ import {
   requestAIOrganizationPlan,
   requestCleanedPreview
 } from "./services/aiAnalysisClient.js";
+import { initAnalytics, trackEvent } from "./services/analytics.js";
 import { readImageFile } from "./services/fileImage.js";
 import { analyzeImage } from "./services/imageAnalysis.js";
+import { loadSiteConfig } from "./services/siteConfig.js";
 import { getCompletionState } from "./services/gamification.js";
+import { escapeHtml } from "./utils/dom.js";
 
 const unsupportedContentReasons = new Set([
   "unsupported_child_sensitive_content",
@@ -22,6 +25,8 @@ const emptyPhoto = document.querySelector("#emptyPhoto");
 const photoFallback = document.querySelector("#photoFallback");
 const resultsRoot = document.querySelector("#resultsRoot");
 const citySelect = document.querySelector("#citySelect");
+const feedbackPanel = document.querySelector("#feedbackPanel");
+const feedbackButton = document.querySelector("#feedbackButton");
 
 const state = {
   result: null,
@@ -33,6 +38,8 @@ const state = {
   },
   completedIds: new Set()
 };
+
+initializeSiteExtras();
 
 uploadButton.addEventListener("click", () => {
   photoInput.value = "";
@@ -57,9 +64,31 @@ photoInput.addEventListener("change", async (event) => {
     URL.revokeObjectURL(state.photoUrl);
   }
 
+  trackEvent("tidysnap_photo_selected", {
+    file_type: file.type || "unknown"
+  });
   state.photoUrl = URL.createObjectURL(file);
   await analyzeSelectedPhoto(file, state.photoUrl);
 });
+
+async function initializeSiteExtras() {
+  const config = await loadSiteConfig();
+  initAnalytics(config.gaMeasurementId);
+  configureFeedback(config.feedbackUrl);
+  trackEvent("tidysnap_app_loaded");
+}
+
+function configureFeedback(feedbackUrl) {
+  if (!feedbackPanel || !feedbackButton || !feedbackUrl) {
+    return;
+  }
+
+  feedbackButton.href = feedbackUrl;
+  feedbackPanel.hidden = false;
+  feedbackButton.addEventListener("click", () => {
+    trackEvent("tidysnap_feedback_opened");
+  });
+}
 
 async function analyzeSelectedPhoto(file, photoUrl) {
   uploadButton.disabled = true;
@@ -87,8 +116,17 @@ async function analyzeSelectedPhoto(file, photoUrl) {
       const aiPayload = await requestAIOrganizationPlan(file, citySelect.value, result.sceneType);
       result = applyAIOrganizationPlan(result, aiPayload);
       state.previewWarning = buildAIStatusMessage(aiPayload);
+      trackEvent("tidysnap_fast_mode_complete", {
+        scene_type: result.sceneType,
+        score: result.cleanlinessScore,
+        converted: Boolean(aiPayload.converted)
+      });
     } catch (aiError) {
       state.previewWarning = buildAIFallbackMessage(imageRead.warning, aiError);
+      trackEvent("tidysnap_fast_mode_fallback", {
+        scene_type: result.sceneType,
+        code: aiError.code || "unknown"
+      });
       console.warn(aiError);
     }
 
@@ -158,6 +196,9 @@ async function generateCleanedPreview() {
     isGenerating: true,
     error: ""
   };
+  trackEvent("tidysnap_preview_requested", {
+    scene_type: state.result.sceneType
+  });
   render();
 
   try {
@@ -168,6 +209,10 @@ async function generateCleanedPreview() {
       isGenerating: false,
       error: error.message
     };
+    trackEvent("tidysnap_preview_error", {
+      scene_type: state.result.sceneType,
+      code: error.code || "unknown"
+    });
     render();
     console.warn(error);
     return;
@@ -177,6 +222,10 @@ async function generateCleanedPreview() {
     isGenerating: false,
     error: ""
   };
+  trackEvent("tidysnap_preview_complete", {
+    scene_type: state.result.sceneType,
+    generated: Boolean(state.result.aiAnalysis?.cleanedImage?.dataUrl)
+  });
   render();
 }
 
@@ -210,7 +259,7 @@ function renderPreviewNotice(message) {
   return `
     <div class="notice-panel compact-notice" role="status">
       <strong>Photo accepted.</strong>
-      <span>${message}</span>
+      <span>${escapeHtml(message)}</span>
     </div>
   `;
 }

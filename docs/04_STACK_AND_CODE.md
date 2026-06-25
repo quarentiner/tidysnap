@@ -10,6 +10,8 @@ TidySnap uses:
 - Node.js local backend route
 - Netlify Functions for hosted backend routes
 - `heic-convert` for HEIC to JPEG conversion
+- optional Tally feedback link through public site config
+- optional Google Analytics 4 tracking through public site config
 - Node.js built-in test runner
 
 The only npm runtime dependency is `heic-convert`.
@@ -78,6 +80,13 @@ npm.cmd run build
 Clutter_Cleanup_Pipeline_Prompts_Updated.md
 netlify.toml
 
+assets/
+  before-after/
+    before-1.jpg
+    clean-1.jpg
+    before-3.jpg
+    clean-3.jpg
+
 src/
   app.js
   styles.css
@@ -90,10 +99,13 @@ src/
     rules.js
 
   services/
+    analytics.js
+    aiAnalysisClient.js
     fileImage.js
     gamification.js
     imageAnalysis.js
     recommendationEngine.js
+    siteConfig.js
     scoring.js
     season.js
 
@@ -106,6 +118,8 @@ src/
     imageNormalizer.js
     openaiOrganizer.js
     promptTemplates.js
+    rateLimit.js
+    siteConfig.js
 
   utils/
     dom.js
@@ -114,6 +128,7 @@ netlify/
   functions/
     analyze-image.mjs
     generate-clean-preview.mjs
+    site-config.mjs
 ```
 
 ## Module Duties
@@ -188,6 +203,16 @@ netlify/
 - sends a second request for Preview Mode when the user asks for it
 - refreshes the selected cleanup prompt category from the AI organizer plan
 
+`src/services/siteConfig.js`
+
+- reads public site config from `/api/site-config`
+- keeps Tally and GA4 optional for launch
+
+`src/services/analytics.js`
+
+- loads GA4 only when a measurement ID is configured
+- tracks app events without sending images or file names
+
 `Clutter_Cleanup_Pipeline_Prompts_Updated.md`
 
 - stores the editable Planner, Editor, and Validator prompts
@@ -239,11 +264,22 @@ netlify/
 - parses each Markdown section by heading
 - builds runtime prompts with city, file name, and planner JSON
 
+`src/server/rateLimit.js`
+
+- caps Fast Mode at 3 requests per IP per 10 minutes by default
+- caps Preview Mode at 1 request per IP per 10 minutes by default
+
+`src/server/siteConfig.js`
+
+- exposes safe public config values for feedback and analytics
+- accepts only HTTPS feedback URLs and GA4 IDs that start with `G-`
+
 `netlify.toml`
 
 - sets the Netlify build command
 - maps `/api/analyze-image` to the Fast Mode function
 - maps `/api/generate-clean-preview` to the Preview Mode function
+- maps `/api/site-config` to the public config function
 - includes the project prompt Markdown file in serverless bundles
 
 `netlify/functions/analyze-image.mjs`
@@ -255,6 +291,10 @@ netlify/
 
 - Netlify wrapper for Preview Mode
 - generates the cleaned image and validation result
+
+`netlify/functions/site-config.mjs`
+
+- returns public feedback and analytics config
 
 ## Future Backend Option
 

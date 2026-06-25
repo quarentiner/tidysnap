@@ -1,5 +1,7 @@
 import { analyzeImagePayload, statusCodeForError } from "../../src/server/analyzeImageRoute.js";
 import { loadEnvFile } from "../../src/server/env.js";
+import { jsonResponse, parseJsonEventBody, responseHeadersForError } from "../../src/server/netlifyHttp.js";
+import { assertRateLimit, getClientIdentifierFromEvent } from "../../src/server/rateLimit.js";
 
 loadEnvFile();
 
@@ -12,39 +14,17 @@ export async function handler(event) {
   }
 
   try {
-    const payload = await analyzeImagePayload(parseJsonBody(event.body));
+    assertRateLimit({
+      action: "analyze",
+      clientId: getClientIdentifierFromEvent(event)
+    });
+    const payload = await analyzeImagePayload(parseJsonEventBody(event.body));
     return jsonResponse(200, payload);
   } catch (error) {
     return jsonResponse(error.statusCode || statusCodeForError(error), {
       ok: false,
       code: error.code || "ANALYZE_IMAGE_FAILED",
       error: error.message
-    });
+    }, responseHeadersForError(error));
   }
-}
-
-function parseJsonBody(body) {
-  if (!body) {
-    const error = new Error("Request body is empty.");
-    error.statusCode = 400;
-    throw error;
-  }
-
-  try {
-    return JSON.parse(body);
-  } catch {
-    const error = new Error("Request body must be valid JSON.");
-    error.statusCode = 400;
-    throw error;
-  }
-}
-
-function jsonResponse(statusCode, payload) {
-  return {
-    statusCode,
-    headers: {
-      "content-type": "application/json; charset=utf-8"
-    },
-    body: JSON.stringify(payload)
-  };
 }

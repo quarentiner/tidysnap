@@ -64,6 +64,9 @@ MVP features:
 - before / after potential card
 - optional AI-generated cleaned after-image
 - optional AI validation status for the generated after-image
+- real before / after example photos
+- optional Tally feedback link
+- optional Google Analytics 4 event tracking
 - points for each completed action
 - progress bar
 - badges:
@@ -110,6 +113,13 @@ index.html
 netlify.toml
 package.json
 
+assets/
+  before-after/
+    before-1.jpg
+    clean-1.jpg
+    before-3.jpg
+    clean-3.jpg
+
 src/
   app.js
   styles.css
@@ -122,11 +132,13 @@ src/
     rules.js
 
   services/
+    analytics.js
     aiAnalysisClient.js
     fileImage.js
     gamification.js
     imageAnalysis.js
     recommendationEngine.js
+    siteConfig.js
     scoring.js
     season.js
 
@@ -137,11 +149,13 @@ src/
     imageValidator.js
     openaiOrganizer.js
     promptTemplates.js
+    siteConfig.js
 
 netlify/
   functions/
     analyze-image.mjs
     generate-clean-preview.mjs
+    site-config.mjs
 
   utils/
     dom.js
@@ -179,7 +193,22 @@ Frontend:
 - shows the uploaded photo
 - shows scene, score, actions, bins, accessories, badges, and progress
 - shows Generate cleaned preview after Fast Mode completes
+- shows real before / after example photos
+- shows a feedback link when `TIDYSNAP_FEEDBACK_URL` is configured
+- sends lightweight GA4 events when `TIDYSNAP_GA_MEASUREMENT_ID` is configured
 - lets the user mark actions complete
+
+Public rate limits:
+
+- Fast Mode: `3` requests per IP per 10 minutes by default.
+- Preview Mode: `1` request per IP per 10 minutes by default.
+
+Optional public launch variables:
+
+```text
+TIDYSNAP_FEEDBACK_URL=https://tally.so/r/your-form-id
+TIDYSNAP_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
 
 Image analysis:
 
@@ -220,6 +249,7 @@ Read these files in order if you are new to the project:
 - [08_HOW_TO_USE.md](docs/08_HOW_TO_USE.md) - user guide and troubleshooting.
 - [09_AI_API_KEY.md](docs/09_AI_API_KEY.md) - when an AI API key is needed and how to add it safely later.
 - [10_CLEANUP_PROMPT_LIBRARY.md](docs/10_CLEANUP_PROMPT_LIBRARY.md) - expandable image cleanup prompt library.
+- [AUDIT.md](docs/AUDIT.md) - public launch audit, key safety, rate limits, and remaining risks.
 
 ## How To Run Or Use The Project
 

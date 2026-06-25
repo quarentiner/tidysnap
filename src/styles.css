@@ -62,11 +62,13 @@ input {
 .photo-guidance,
 .spatial-section,
 .cleaned-image-section,
-.preview-mode-panel,
-.cleanup-prompt-section,
-.organizer-section,
-.support-panel,
-.badges-panel,
+  .preview-mode-panel,
+  .cleanup-prompt-section,
+  .organizer-section,
+  .examples-section,
+  .feedback-panel,
+  .support-panel,
+  .badges-panel,
   .comparison-card,
   .notice-panel,
   .unsupported-panel,
@@ -281,6 +283,84 @@ select {
 .results-root {
   display: grid;
   gap: 18px;
+}
+
+.examples-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  box-shadow: none;
+}
+
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.example-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 14px;
+}
+
+.example-card h3 {
+  margin-top: 12px;
+}
+
+.example-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.example-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.example-images figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ece8dd;
+  aspect-ratio: 4 / 3;
+}
+
+.example-images img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.example-images figcaption {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.feedback-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  box-shadow: none;
+}
+
+.feedback-panel h2 {
+  font-size: 1.4rem;
 }
 
 .score-band {
@@ -973,6 +1053,7 @@ select {
   .spatial-layout,
   .cleanup-grid,
   .support-grid,
+  .example-grid,
   .zone-grid,
   .action-grid {
     grid-template-columns: 1fr;
@@ -1001,6 +1082,8 @@ select {
   .preview-mode-panel,
   .cleanup-prompt-section,
   .organizer-section,
+  .examples-section,
+  .feedback-panel,
   .support-panel,
   .badges-panel,
   .comparison-card,
@@ -1023,6 +1106,7 @@ select {
   .cleaned-image-heading,
   .preview-mode-panel,
   .cleanup-heading,
+  .feedback-panel,
   .celebration-panel {
     display: grid;
   }
