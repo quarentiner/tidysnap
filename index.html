@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TidySnap</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <div class="intro-panel">
+          <div>
+            <p class="eyebrow">TidySnap</p>
+            <h1 id="app-title">Turn one messy photo into a 3-step room reset.</h1>
+            <p class="support-note">Supported: children's clothes-only storage and school books without private info. Not supported: visible children/babies, baby items, private identity items, or intimate clothing.</p>
+          </div>
+
+          <div class="controls-row">
+            <label class="field-label" for="citySelect">
+              City
+              <select id="citySelect" name="city">
+                <option value="New York">New York</option>
+                <option value="Los Angeles">Los Angeles</option>
+                <option value="London">London</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Sydney">Sydney</option>
+                <option value="Singapore">Singapore</option>
+              </select>
+            </label>
+
+            <input id="photoInput" class="visually-hidden" type="file" accept="image/*,.heic,.heif" capture="environment" />
+            <button id="uploadButton" class="primary-button" type="button">Upload or capture photo</button>
+          </div>
+        </div>
+
+        <section class="photo-stage" aria-label="Uploaded photo">
+          <div id="emptyPhoto" class="empty-photo">
+            <span class="camera-mark" aria-hidden="true"></span>
+            <p>Choose a cupboard, bookshelf, desk, or storage photo.</p>
+          </div>
+          <div id="photoFallback" class="empty-photo uploaded-fallback" hidden>
+            <span class="file-mark" aria-hidden="true">IMG</span>
+            <p>Photo uploaded. Preview is not available in this browser.</p>
+          </div>
+          <img id="photoPreview" class="photo-preview" alt="Uploaded messy area" hidden />
+        </section>
+
+        <section id="resultsRoot" class="results-root" aria-live="polite"></section>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
